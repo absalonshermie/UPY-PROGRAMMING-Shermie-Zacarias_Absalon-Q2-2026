@@ -1,4 +1,4 @@
-# INPUT
+#INPUT
 Get a, b, f_x, method from user
 IF a contains "pi"
     a <- value of pi
@@ -12,29 +12,12 @@ ELSE
     b <- convert b to float
 ENDIF
 
-# PROCESS
+#PROCESS
 area <- 0.0
 n <- 1000
 h <- (b - a) / n
 shift <- 0
 constant <- 0
-variable <- 0
-
-IF method is equal "TRAP"
-    variable <- 1
-    
-    f_0 <- f_x(a)
-    area <- area + (h / 2) * f_0
-    
-    FOR i IN RANGE (variable, n) DO
-        xi <- a + (i * h)
-        f_xi <- f_x(xi)
-        area <- area + (h / 2) * 2 * f_xi
-    ENDFOR
-    
-    f_xn <- f_x(b)
-    area <- area + (h / 2) * f_xn
-ENDIF
 
 IF method is equal "RRM"
     shift <- 1
@@ -44,14 +27,27 @@ IF method is equal "MPM"
     constant <- h / 2
 ENDIF
 
-IF method is not equal "TRAP"
-    FOR i IN RANGE (0 + shift, n + shift) DO
-        xi <- a + (i * h) + constant
-        
-        height <- f_x(xi) 
-        area <- area + height * h
-    ENDFOR
+IF method is equal "TRP"
+    shift <- 1
 ENDIF
 
-# OUTPUT
+FOR i IN RANGE (0 + shift, n + shift) DO
+    xi <- a + i * h + constant
+    
+    height <- f_x (xi)
+    
+    IF method is equal "TRP"
+        area <- area + 2 * height * h
+    ELSE
+        area <- area + height * h
+    ENDIF
+ENDFOR
+
+IF method is equal "TRP"
+    fa <- f_x (a)
+    fb <- f_x (b)
+    area <- (area + (fa * h) + (fb * h)) / 2
+ENDIF
+
+#OUTPUT
 DISPLAY " The integration of " + f_x + " is " + area
