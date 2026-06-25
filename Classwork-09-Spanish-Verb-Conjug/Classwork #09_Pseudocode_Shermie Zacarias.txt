@@ -1,0 +1,35 @@
+BEGIN Algorithm ConjugateSpanishVerbs
+    DEFINE ARRAY pronouns = ["Yo", "Tú", "Él", "Nosotros", "Vosotros", "Ellos"]
+    
+    DEFINE DICTIONARY endings = {
+        "ar" : ["o", "as", "a", "amos", "ais", "an"],
+        "er" : ["o", "es", "e", "emos", "eis", "en"],
+        "ir" : ["o", "es", "e", "imos", "is", "en"]
+    }
+
+    # INPUT
+    PRINT "Write a spanish verb (ar/er/ir): "
+    READ verb\
+
+    # PROCESS
+
+    Get the stem (all characters except the last two)
+    stem = SUBSTRING(verb, 0, LENGTH(verb) - 2) 
+    
+    Get the ending (the last two characters)
+    ending = SUBSTRING(verb, LENGTH(verb) - 2, LENGTH(verb))
+
+    # Retrieve the matching list of terminations based on the ending
+    conjugations = endings[ending]
+
+    #OUTPUT
+    # Loop through each pronoun by its index
+    FOR index = 0 TO LENGTH(pronouns) - 1 DO
+        pronoun = pronouns[index]
+        termination = conjugations[index]
+        
+        #Output the final conjugated format
+        PRINT pronoun + " " + stem + termination
+        
+    END FOR
+END Algorithm
