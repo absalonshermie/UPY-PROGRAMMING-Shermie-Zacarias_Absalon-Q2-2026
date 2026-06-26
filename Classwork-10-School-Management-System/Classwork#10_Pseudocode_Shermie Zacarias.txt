@@ -46,9 +46,7 @@ BEGIN PROGRAM SchoolManagementSystem
         END IF
     END WHILE
 
-    // ==========================================
-    // 3. Role Menus
-    // ==========================================
+    # Role Menus
     IF current_role EQUALS "student" THEN
         PRINT "========================================="
         PRINT "  School Report"
@@ -59,11 +57,13 @@ BEGIN PROGRAM SchoolManagementSystem
         
         FOR j = 1 TO total_subjects DO
             SET current_grade = notes[user_index][j]
-            PRINT subjects[j] + ": " + current_grade
             
-            IF current_grade >= 8.0 THEN
+            // Check if the student passed before printing
+            IF current_grade >= 7.0 THEN
+                PRINT subjects[j] + ": " + current_grade
                 APPEND subjects[j] TO approved_list
             ELSE
+                // If they failed, it goes silently to the pending list
                 APPEND subjects[j] TO pending_list
             END IF
         END FOR
@@ -72,128 +72,4 @@ BEGIN PROGRAM SchoolManagementSystem
         PRINT "Pending : {" + pending_list + "}"
 
     ELSE IF current_role EQUALS "professor" THEN
-        PRINT "========================================="
-        PRINT "  Students"
-        PRINT "========================================="
-        
-        // Print all students
-        FOR i = 1 TO total_users DO
-            IF roles[i] EQUALS "student" THEN
-                PRINT "User: " + usernames[i] + " | Student: " + names[i]
-            END IF
-        END FOR
-        
-        PRINT "Write other thing to exit"
-        PRINT "Student to grade (username): "
-        INPUT target_user
-        
-        // Find target user index to evaluate loop condition
-        SET target_index = 0
-        FOR i = 1 TO total_users DO
-            IF usernames[i] EQUALS target_user AND roles[i] EQUALS "student" THEN
-                SET target_index = i
-            END IF
-        END FOR
-        
-        // Loop while the target_index is valid (student was found)
-        WHILE target_index > 0 DO
-            PRINT "========================================="
-            PRINT "  Subjects"
-            PRINT "========================================="
-            FOR j = 1 TO total_subjects DO
-                PRINT subjects[j]
-            END FOR
-            
-            PRINT "Subject to grade: "
-            INPUT target_subject
-            
-            // Find subject index
-            SET subj_index = 0
-            FOR j = 1 TO total_subjects DO
-                IF subjects[j] EQUALS target_subject THEN
-                    SET subj_index = j
-                END IF
-            END FOR
-            
-            IF subj_index > 0 THEN
-                PRINT "New grade: "
-                INPUT new_grade
-                
-                PRINT "Do you confirm (yes/no)?"
-                PRINT target_subject + ": " + notes[target_index][subj_index] + " ==> " + new_grade
-                INPUT confirm_change
-                
-                IF lowercase(confirm_change) EQUALS "yes" THEN
-                    SET notes[target_index][subj_index] = new_grade
-                    PRINT "Grade updated!"
-                    
-                    // Print updated grades for that student
-                    PRINT "{"
-                    FOR j = 1 TO total_subjects DO
-                        PRINT subjects[j] + ": " + notes[target_index][j]
-                    END FOR
-                    PRINT "}"
-                END IF
-            END IF
-            
-            PRINT "Write other thing to exit"
-            PRINT "Student to grade (username): "
-            INPUT target_user
-            
-            // Re-evaluate target user index for the next loop iteration
-            SET target_index = 0
-            FOR i = 1 TO total_users DO
-                IF usernames[i] EQUALS target_user AND roles[i] EQUALS "student" THEN
-                    SET target_index = i
-                END IF
-            END FOR
-        END WHILE
 
-    ELSE IF current_role EQUALS "coordinator" THEN
-        PRINT "========================================="
-        PRINT "  Professors"
-        PRINT "========================================="
-        FOR i = 1 TO total_users DO
-            IF roles[i] EQUALS "professor" THEN
-                PRINT "User: " + usernames[i] + " | Professor: " + names[i]
-            END IF
-        END FOR
-        
-        PRINT "========================================="
-        PRINT "  Students"
-        PRINT "========================================="
-        FOR i = 1 TO total_users DO
-            IF roles[i] EQUALS "student" THEN
-                PRINT "User: " + usernames[i] + " | Student: " + names[i]
-            END IF
-        END FOR
-        
-        PRINT "========================================="
-        PRINT "  Records"
-        PRINT "========================================="
-        
-        // Print Table Header (Loop to print usernames in one line)
-        PRINT_SAME_LINE "SUBJECTS      | "
-        FOR i = 1 TO total_users DO
-            IF roles[i] EQUALS "student" THEN
-                PRINT_SAME_LINE usernames[i] + " | "
-            END IF
-        END FOR
-        PRINT_NEW_LINE()
-        
-        // Print Table Rows (Loop subjects, then loop students' grades)
-        FOR j = 1 TO total_subjects DO
-            PRINT_SAME_LINE subjects[j] + " | "
-            
-            FOR i = 1 TO total_users DO
-                IF roles[i] EQUALS "student" THEN
-                    PRINT_SAME_LINE notes[i][j] + " | "
-                END IF
-            END FOR
-            
-            PRINT_NEW_LINE()
-        END FOR
-
-    END IF
-
-END PROGRAM
