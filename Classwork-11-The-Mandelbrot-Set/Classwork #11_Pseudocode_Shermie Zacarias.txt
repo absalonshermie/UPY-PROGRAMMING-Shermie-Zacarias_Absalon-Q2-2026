@@ -1,0 +1,46 @@
+INITIALIZE an empty dictionary called config
+
+OPEN file "config.txt" for reading
+FOR EACH line IN file:
+    REMOVE leading and trailing whitespaces from line
+    SPLIT line by "=" into two variables: parameter, value
+    
+    IF value contains a "." THEN
+        STORE value as a floating-point number in config[parameter]
+    ELSE
+        STORE value as an integer in config[parameter]
+    END IF
+END FOR
+CLOSE file
+
+SET width TO config["ancho"]
+SET height TO config["alto"]
+SET max_iter TO config["max_iter"]
+
+OPEN file "mandelbrot.csv" for writing
+WRITE "row,column,iterations\n" to output file
+
+FOR row FROM 0 TO height - 1:
+    FOR column FROM 0 TO width - 1:
+        
+        // Map pixel coordinates to the complex plane bounds
+        SET real TO config["real_min"] + (column / width) * (config["real_max"] - config["real_min"])
+        SET imag TO config["imag_min"] + (row / height) * (config["imag_max"] - config["imag_min"])
+        
+        // Initialize complex numbers
+        SET c TO complex number (real, imag)
+        SET z TO complex number (0, 0)
+        SET iterations TO 0
+        
+        // Calculate Mandelbrot escape condition
+        WHILE (absolute value of z <= 2) AND (iterations < max_iter):
+            COMPUTE z = (z * z) + c
+            INCREMENT iterations BY 1
+        END WHILE
+        
+        WRITE row, column, and iterations to output file (comma-separated)
+        
+    END FOR
+END FOR
+
+CLOSE output file
