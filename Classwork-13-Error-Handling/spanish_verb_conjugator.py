@@ -1,44 +1,42 @@
-
-class InvalidVerbError(Exception):
-    pass
+# Definimos excepciones de reglas de negocio
+class MayusculasError(Exception): pass
+class EspaciosError(Exception): pass
 
 pronouns = ["Yo", "Tú", "Él", "Nosotros", "Vosotros", "Ellos"]
-
 endings = {
-    "ar" : ["o", "as", "a", "amos", "ais", "an"],
-    "er" : ["o", "es", "e", "emos", "eis", "en"],
-    "ir" : ["o", "es", "e", "imos", "is", "en"],
+    "ar": ["o", "as", "a", "amos", "ais", "an"],
+    "er": ["o", "es", "e", "emos", "eis", "en"],
+    "ir": ["o", "es", "e", "imos", "is", "en"],
 }
 
-check = True
+try:
+    verb = input("Write a spanish verb (ar/er/ir): ")
 
-while check:
-    try:
-        # INPUT
-        verb = input("Write a spanish verb (ar/er/ir): ").strip().lower()
+    # Regla de negocio: rechazar mayúsculas
+    if verb != verb.lower():
+        raise MayusculasError("El verbo debe escribirse en minúsculas")
         
-        if len(verb) < 2:
-            raise ValueError("El verbo es demasiado corto.")
-            
-        stem = verb[:-2] 
-        ending = verb[-2:] 
-        
-        if ending not in endings:
-            raise InvalidVerbError(f"La terminación '{ending}' no es válida. El verbo debe terminar en ar, er o ir.")
-            
-        conjugations = endings[ending]
-        
-        check = False 
-        
-    except ValueError as e:
-        print(f"Error: {e}\n")
-    except InvalidVerbError as e:
-        print(f"Error de dominio: {e}\n")
-    except KeyError as e:
-        print(f"Error: La llave {e} no existe en el diccionario de terminaciones.\n")
+    # Regla de negocio: rechazar espacios
+    if verb != verb.strip() or " " in verb:
+        raise EspaciosError("El verbo no debe tener espacios extra")
 
-# PROCESS / OUTPUT
-print(f"\n--- Conjugación de {verb} ---")
-for index, pronoun in enumerate(pronouns):
-    termination = conjugations[index]
-    print(f"{pronoun} {stem}{termination}")
+    # Si es muy corto (ej: "a") o no está (ej: "control"), la extracción 
+    # de [-2:] dará algo que NO está en el diccionario y Python lanzará KeyError
+    stem = verb[:-2]
+    ending = verb[-2:]
+    
+    conjugations = endings[ending]
+
+except MayusculasError as e:
+    print(e)
+except EspaciosError as e:
+    print(e)
+except KeyError:
+    # Atrapamos errores para "control", un número "123", o inputs vacíos
+    print("El verbo debe terminar en ar, er o ir")
+
+# ELSE (Happy Path): Accedemos al diccionario e imprimimos
+else:
+    for index, pronoun in enumerate(pronouns):
+        termination = conjugations[index]
+        print(f"{pronoun} {stem}{termination}")
