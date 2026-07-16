@@ -1,78 +1,59 @@
 from PIL import Image
 
-class DimensionesInvalidasError(Exception):
-    pass
-
-class CSVVacioError(Exception):
-    pass
-
 config = {}
 
 try:
+    # 1. Leer Configuración
     with open("config.txt", "r") as file:
-        for line_num, line in enumerate(file, start=1):
+        lines = file.readlines()
+        for line in lines:
             line = line.strip()
             if not line:
                 continue
-            try:
-                parameter, value = line.split("=")
-                config[parameter.strip()] = float(value) if "." in value else int(value)
-            except ValueError:
-                print(f"Aviso: Formato incorrecto en config.txt (línea {line_num}).")
-    
+            parameter, value = line.split("=")
+            config[parameter.strip()] = float(value) if "." in value else int(value)
+
     max_iter = config["max_iter"]
-    ancho = config["ancho"]
-    alto = config["alto"]
-    
-    if ancho <= 0 or alto <= 0:
-        raise DimensionesInvalidasError("El ancho y alto deben ser mayores a cero.")
-        
+    ancho = int(config["ancho"])
+    alto = int(config["alto"])
+
+    # 2. Configurar la imagen en escala de grises ("L")
+    img = Image.new("L", (ancho, alto))
+
+    # 3. Leer CSV y procesar pixeles
     with open("mandelbrot.csv", "r") as archivo:
         lineas = archivo.readlines()
         
-    if len(lineas) <= 1:
-        raise CSVVacioError("El archivo mandelbrot.csv no tiene suficientes datos.")
-        
-    lineas.pop(0)
+    lineas.pop(0) # Quitar encabezados
 
-except FileNotFoundError as e:
-    print(f"Error crítico: No se encontró un archivo necesario. {e}")
-except KeyError as e:
-    print(f"Error de configuración: Falta el parámetro obligatorio {e} en config.txt.")
-except DimensionesInvalidasError as e:
-    print(f"Error de dominio: {e}")
-except CSVVacioError as e:
-    print(f"Error de datos: {e}")
-
-else:
-    img = Image.new("HSV", (ancho, alto))
-    
-    for idx, linea in enumerate(lineas, start=2): 
+    for linea in lineas:
         linea = linea.strip()
         if not linea:
             continue
             
-        try:
-            row, column, iterations = linea.split(",")
-            iterations = int(iterations)
-            row = int(row)
-            column = int(column)
+        # Si hay datos de más ("extra"), el split(",") lanzará ValueError
+        row, column, iterations = linea.split(",")
+        iterations = int(iterations)
+        row = int(row)
+        column = int(column)
+        
+        # Mapeo de color corregido según los casos de prueba
+        if iterations == max_iter:
+            brillo = 0
+        else:
+            brillo = int((iterations / max_iter) * 255)
             
-            if iterations == max_iter:
-                brillo = 40
-            else:
-                brillo = int((iterations / max_iter) * 255)
-                
-            img.putpixel((column, row), (brillo, 255, 255))
-            
-        except ValueError:
-            print(f"Aviso: Fila {idx} en el CSV corrupta. Saltando píxel.")
-        except IndexError:
-            print(f"Aviso: Coordenada ({column}, {row}) fuera del límite de la imagen. Saltando.")
-            
-    try:
-        img_rgb = img.convert("RGB")
-        img_rgb.save("mandelbrot.png")
-        print("DONE: Imagen generada y guardada exitosamente.")
-    except Exception as e:
-        print(f"Error inesperado al guardar la imagen: {e}")
+        # Si la columna o fila sobrepasan (ancho, alto), putpixel lanzará IndexError
+        img.putpixel((column, row), brillo)
+        
+    img.save("mandelbrot.png")
+
+except FileNotFoundError as e:
+    if "config.txt" in str(e):
+        print("No se encontró el archivo config.txt")
+    else:
+        print("No se encontró el archivo mandelbrot.csv")
+except ValueError:
+    print("El archivo mandelbrot.csv está mal formado.")
+except IndexError:
+    print("El archivo mandelbrot.csv no es consistente con el ancho y alto del config.txt.")
