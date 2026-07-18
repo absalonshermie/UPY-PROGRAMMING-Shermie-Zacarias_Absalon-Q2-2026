@@ -1,0 +1,104 @@
+==========================================
+BUBBLE SORT ANIMATED
+==========================================
+FUNCTION bubble_sort_animated(numbers):
+    SET canvas X scale from -0.1 to 10
+    SET canvas Y scale from -0.5 to max(numbers) + 1
+    n = length of numbers
+    
+    FOR sweep FROM 0 TO n - 1:
+        FOR pair FROM 0 TO (n - 1 - sweep - 1):
+            CALL draw_bars(numbers, selected=(pair, pair + 1))
+            
+            IF numbers[pair] > numbers[pair + 1] THEN
+                SWAP numbers[pair] AND numbers[pair + 1]
+                CALL draw_bars(numbers, selected=(pair, pair + 1))
+                
+    CALL draw_bars(numbers)
+    PAUSE canvas for 2000 milliseconds
+
+
+==========================================
+SELECTION SORT ANIMATED
+==========================================
+FUNCTION selection_sort_animated(numbers):
+    SET canvas X scale from -0.1 to 10
+    SET canvas Y scale from -0.5 to max(numbers) + 1
+    n = length of numbers
+    
+    FOR i FROM 0 TO n - 1:
+        min_idx = i
+        FOR j FROM i + 1 TO n - 1:
+            CALL draw_bars(numbers, selected=(min_idx, j))
+            IF numbers[j] < numbers[min_idx] THEN
+                min_idx = j
+                
+        SWAP numbers[i] AND numbers[min_idx]
+        CALL draw_bars(numbers, selected=(i, min_idx))
+        
+    CALL draw_bars(numbers)
+    PAUSE canvas for 2000 milliseconds
+
+
+==========================================
+INSERTION SORT ANIMATED
+==========================================
+FUNCTION insertion_sort_animated(numbers):
+    SET canvas X scale from -0.1 to 10
+    SET canvas Y scale from -0.5 to max(numbers) + 1
+    n = length of numbers
+    
+    FOR i FROM 1 TO n - 1:
+        j = i
+        WHILE j > 0 AND numbers[j - 1] > numbers[j]:
+            CALL draw_bars(numbers, selected=(j - 1, j))
+            SWAP numbers[j] AND numbers[j - 1]
+            CALL draw_bars(numbers, selected=(j - 1, j))
+            j = j - 1
+            
+    CALL draw_bars(numbers)
+    PAUSE canvas for 2000 milliseconds
+
+
+==========================================
+DRAW BARS FUNCTION
+==========================================
+FUNCTION draw_bars(numbers, selected_indices):
+    CLEAR canvas
+    n = length of numbers
+    bar_width = 10.0 / n
+    
+    FOR EACH index, value IN numbers:
+        CALCULATE x_position = index * bar_width + (bar_width / 2)
+        
+        IF index is in selected_indices THEN
+            SET color = RED
+        ELSE
+            SET color = BLUE
+            
+        SET canvas pen color
+        DRAW filled rectangle at x_position with height = value
+        
+    SHOW canvas for 500 milliseconds
+
+
+==========================================
+MAIN EXECUTION
+==========================================
+CREATE original_numbers = list of 10 random numbers between 0 and 100
+PRINT "Unsorted original list: " + original_numbers
+
+PRINT "Running Bubble Sort..."
+list_for_bubble = COPY OF original_numbers
+CALL bubble_sort_animated(list_for_bubble)
+
+PRINT "Running Selection Sort..."
+list_for_selection = COPY OF original_numbers
+CALL selection_sort_animated(list_for_selection)
+
+PRINT "Running Insertion Sort..."
+list_for_insertion = COPY OF original_numbers
+CALL insertion_sort_animated(list_for_insertion)
+
+PRINT "All animations finished!"
+KEEP canvas open indefinitely
