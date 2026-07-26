@@ -1,0 +1,95 @@
+FUNCTION recursiva(n)
+    // BASE CASE
+    IF n == 0 THEN
+        RETURN "Done"
+    ELSE
+        PRINT n - 1
+        RETURN recursiva(n - 1)
+    ENDIF
+ENDFUNCTION
+
+FUNCTION fibonnaci(n)
+    IF (n == 0) OR (n == 1) THEN
+        PRINT n
+        RETURN n
+    ELSE
+        PRINT (n - 1, n - 2)
+        RETURN fibonnaci(n - 1) + fibonnaci(n - 2)
+    ENDIF
+ENDFUNCTION
+
+FUNCTION factorial(n)
+    IF (n == 0) OR (n == 1) THEN
+        RETURN 1
+    ELSE
+        RETURN factorial(n - 1) * n
+    ENDIF
+ENDFUNCTION
+
+FUNCTION multiplicacion_recursiva(n, m)
+    SET total = 0
+    IF m == 0 THEN
+        RETURN 0
+    ELSE
+        total = total + n
+        RETURN multiplicacion_recursiva(n, m - 1) + n
+    ENDIF
+ENDFUNCTION
+
+FUNCTION division_entera_recursiva(dividendo, divisor)
+    IF dividendo - divisor < 0 THEN
+        RETURN 0
+    ELSE
+        RETURN division_entera_recursiva(dividendo - divisor, divisor) + 1
+    ENDIF
+ENDFUNCTION
+
+FUNCTION potencia_recursiva(base, exponente)
+    IF exponente == 0 THEN
+        RETURN 1
+    ELSE
+        RETURN potencia_recursiva(base, exponente - 1) * base
+    ENDIF
+ENDFUNCTION
+
+FUNCTION serie_collatz(n)
+    IF n == 1 THEN
+        RETURN 0
+    ELSE
+        IF n MOD 2 == 0 THEN
+            RETURN serie_collatz(n / 2)
+        ELSE
+            RETURN serie_collatz(3 * n + 1)
+        ENDIF
+    ENDIF
+ENDFUNCTION
+
+FUNCTION aplanar_json(diccionario, clave_padre = '', separador = '.')
+    IF diccionario IS A list THEN
+        diccionario = dict(enumerate(diccionario))
+    ENDIF
+    
+    SET elementos = EMPTY LIST
+    FOR EACH key, value IN diccionario.items()
+        IF clave_padre THEN
+            SET nueva_llave = clave_padre + separador + key
+        ELSE
+            SET nueva_llave = STRING(key)
+        ENDIF
+        
+        IF value IS A dict OR value IS A list THEN
+            CALL elementos.extend(aplanar_json(value, nueva_llave, separador).items())
+        ELSE
+            CALL elementos.append((nueva_llave, value))
+        ENDIF
+    ENDFOR
+    
+    RETURN dict(elementos)
+ENDFUNCTION
+
+// MAIN PROGRAM
+OPEN 'json_prueba.json' FOR READING AS archivo
+SET json_crudo = json.load(archivo)
+CLOSE archivo
+
+PRINT aplanar_json(json_crudo)
