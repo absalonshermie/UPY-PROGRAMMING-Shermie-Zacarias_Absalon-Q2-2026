@@ -1,0 +1,73 @@
+START PROGRAM
+
+// 1. READ CONFIGURATION
+CREATE empty dictionary called 'config'
+OPEN file 'config.txt' in read mode
+FOR EACH line IN file:
+    SPLIT the line by '=' into 'parameter' and 'value'
+    REMOVE surrounding whitespace from 'parameter' and 'value'
+    
+    IF 'value' contains a comma (','):
+        SPLIT 'value' by comma into a list of elements
+        CONVERT each element to an integer
+        STORE the list as a tuple in config[parameter]
+    ELSE IF 'value' contains a period ('.'):
+        CONVERT 'value' to a float (decimal)
+        STORE in config[parameter]
+    ELSE:
+        CONVERT 'value' to an integer
+        STORE in config[parameter]
+CLOSE file
+
+// 2. INITIALIZATION
+INITIALIZE the graphics engine (Pygame)
+CREATE a display window (screen) using width and height from 'config'
+
+// 3. DEFINE FUNCTIONS
+FUNCTION calculate_x_positions(surface, vertical_lines, space):
+    CREATE an empty list called 'x_positions'
+    SET width = the width of the surface
+    SET spacing = space * width
+    SET central_line = width / 2
+    SET offset = negative integer of (vertical_lines / 2)
+
+    FOR i FROM 0 TO (vertical_lines - 1):
+        CALCULATE current_x = central_line + (offset * spacing)
+        APPEND current_x TO 'x_positions'
+        INCREMENT offset by 1
+    
+    RETURN 'x_positions'
+END FUNCTION
+
+FUNCTION draw_vertical_lines(surface, x_positions, color, line_width=2):
+    SET height = the height of the surface
+    
+    FOR EACH x IN 'x_positions':
+        DRAW a straight line on 'surface' using 'color' and 'line_width'
+        FROM coordinates (x, 0) TO (x, height)
+END FUNCTION
+
+// 4. MAIN EXECUTION SETUP
+CALL calculate_x_positions WITH screen, config['vertical_lines'], and config['space']
+STORE the result IN 'x_positions'
+PRINT 'x_positions' TO console
+
+// 5. MAIN LOOP
+SET 'running' = TRUE
+
+WHILE 'running' IS TRUE:
+    // Handle user inputs and system events
+    FOR EACH event IN captured events:
+        IF event type IS "quit" (user closes the window):
+            SET 'running' = FALSE
+    
+    // Render graphics
+    FILL the screen background WITH config['bg_color']
+    CALL draw_vertical_lines WITH screen, 'x_positions', and config['line_color']
+    UPDATE the display window to show the new drawings
+
+END WHILE
+
+// 6. CLEANUP
+QUIT the graphics engine
+END PROGRAM
